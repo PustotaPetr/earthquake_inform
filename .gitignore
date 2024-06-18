@@ -1,3 +1,7 @@
+#manually added 
+rabbitmq/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
