@@ -1,15 +1,14 @@
-import asyncio
-
 from aiogram import Bot, Dispatcher
 from aiogram.filters.command import CommandStart
 from aiogram.types import Message
 from flask import Flask
 
-from admin_app import db
+from admin_app import db, flask_app
 from admin_app.db_model import User
 from config import cfg
 from messages.message_ru import MESSAGE_RU
 from middleware.mw_flask import FlaskAppMiddleware
+from rabbit_consumer import fast_stream_app, prepare_fast_stream_context
 
 queue_name = "earthquake"
 bot = Bot(token=cfg.tbbot_cfg.bot_api)
@@ -25,12 +24,18 @@ async def bot_start_pooling(flask_app: Flask):
 
 @dp.startup()
 async def on_startup():
-    print("bot started")
+    print("on_startup: bot started")
+    global fast_stream_app
+    fast_stream_app = await prepare_fast_stream_context(
+        app=fast_stream_app, bot=bot, flask_app=flask_app, db=db
+    )
+    await fast_stream_app.broker.start()
 
 
 @dp.shutdown()
 async def on_shutdown():
-    print("bot stopped")
+    print("on_shutdown: bot stopped")
+    await fast_stream_app.broker.close()
 
 
 @dp.message(CommandStart())
