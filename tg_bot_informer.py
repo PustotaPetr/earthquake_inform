@@ -6,8 +6,9 @@ from flask import Flask
 from admin_app import db, flask_app
 from admin_app.db_model import User
 from config import cfg
+from logger.logger import logger, logger_wraps
 from messages.message_ru import MESSAGE_RU
-from middleware.mw_flask import FlaskAppMiddleware
+from middleware.bot_middleware import FlaskAppMiddleware, LoggerMiddleware
 from rabbit_consumer import fast_stream_app, prepare_fast_stream_context
 
 queue_name = "earthquake"
@@ -15,16 +16,18 @@ bot = Bot(token=cfg.tbbot_cfg.bot_api)
 dp = Dispatcher()
 
 
+@logger_wraps()
 async def bot_start_pooling(flask_app: Flask):
-    flask_app_mw = FlaskAppMiddleware(flask_app=flask_app)
-    dp.message.middleware.register(flask_app_mw)
+    dp.message.middleware.register(FlaskAppMiddleware(flask_app=flask_app))
+    dp.message.middleware.register(LoggerMiddleware(logger))
 
     await dp.start_polling(bot)
 
 
+@logger_wraps()
 @dp.startup()
 async def on_startup():
-    print("on_startup: bot started")
+    logger.info("on_startup: bot started")
     global fast_stream_app
     fast_stream_app = await prepare_fast_stream_context(
         app=fast_stream_app, bot=bot, flask_app=flask_app, db=db
@@ -32,14 +35,15 @@ async def on_startup():
     await fast_stream_app.broker.start()
 
 
+@logger_wraps()
 @dp.shutdown()
 async def on_shutdown():
-    print("on_shutdown: bot stopped")
+    logger.info("on_shutdown: bot stopped")
     await fast_stream_app.broker.close()
 
 
 @dp.message(CommandStart())
-async def command_start_handler(message: Message, flask_app: Flask):
+async def command_start_handler(message: Message, flask_app: Flask, logger):
     await message.answer(MESSAGE_RU["start"])
     with flask_app.app_context():
         if db.session.query(User).filter_by(user_id=message.from_user.id).count() < 1:
@@ -51,6 +55,9 @@ async def command_start_handler(message: Message, flask_app: Flask):
             )
             db.session.add(user)
             db.session.commit()
+            logger.info(
+                f"add new user: user_id={message.from_user.id}, full_name={message.from_user.full_name})"
+            )
 
 
 @dp.message()

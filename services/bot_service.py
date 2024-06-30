@@ -4,13 +4,15 @@ from flask_sqlalchemy import SQLAlchemy
 
 from messages.message_ru import MESSAGE_RU
 from admin_app.db_model import User
+from logger.logger import logger_wraps
 
-
+@logger_wraps()
 async def delete_user(db:SQLAlchemy, user: User):
         print("delete {user=}")
         db.session.delete(user)
         db.session.commit()
 
+@logger_wraps()
 async def send_earthqueke_message_to_user(bot: Bot, db:SQLAlchemy, user: User, mq_message_json: dict):
     try:
         await bot.send_message(
