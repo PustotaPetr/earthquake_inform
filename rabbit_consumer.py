@@ -8,7 +8,10 @@ from flask_sqlalchemy import SQLAlchemy
 from logger.logger import logger
 from admin_app.db_model import User
 from config import cfg
-from services.bot_service import send_earthqueke_message_to_user
+from services.bot_service import (
+    send_earthquake_message_to_user,
+    check_fields_in_message,
+)
 
 queue_name = "earthquake"
 
@@ -50,9 +53,10 @@ async def get_rabbit_message(
     flask_app: Flask = Context(),
     db: SQLAlchemy = Context(),
 ):
+    check_fields_in_message(mq_message_json=msg, log=logger)
     with flask_app.app_context():
         for row in db.session.query(User):
-            await send_earthqueke_message_to_user(bot, db, row, msg)
+            await send_earthquake_message_to_user(bot, db, row, msg)
             logger.info(
-                f'{row.user_id=} {row.user_name=} {msg['publicID']=} {msg["description"]=}'
+                f'{row.user_id=} {row.user_name=} publicID={msg.get('publicID', 'UNKNOWN')} description={msg.get("description", 'UNKNOWN')}'
             )
