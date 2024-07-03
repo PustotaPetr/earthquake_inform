@@ -1,8 +1,16 @@
 services:
   rabbitmq:
-    image: rabbitmq:3.13.3-management
+    image: rabbitmq_curl
+    build:
+      dockerfile: ./rabbitmq.dockerfile
     hostname: rabbitmq
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15672"] #["rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
     environment:
       - RABBITMQ_DEFAULT_USER=#${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=#${RABBITMQ_PASSWORD}
@@ -17,3 +25,28 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
+  admin:
+    container_name: python_web_admin
+    image: python_earthquake_inform
+    build: 
+      context: .
+    ports:
+      - 5050:5000
+    env_file: "docker.env"
+    command: "web_admin"
+    volumes:
+      - ./logs:/opt/earthquake/logs
+      - ./instance:/opt/earthquake/instance
+  bot:
+    container_name: python_bot_consumer
+    image: python_earthquake_inform
+    build: 
+      context: .
+    env_file: "docker.env"
+    command: "bot"
+    volumes:
+      - ./logs:/opt/earthquake/logs
+      - ./instance:/opt/earthquake/instance
+    depends_on:
+      rabbitmq:
+        condition: service_healthy

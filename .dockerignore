@@ -1,0 +1,5 @@
+logs
+venv
+rabbitmq
+.vscode
+*.env
