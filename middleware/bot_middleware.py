@@ -23,7 +23,7 @@ class LoggerMiddleware(BaseMiddleware):
     def __init__(self, logger) -> None:
         super().__init__()
 
-        self.flask_app = logger
+        self.logger = logger
 
     async def __call__(self,
                        handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],

@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher
 from aiogram.filters.command import CommandStart
-from aiogram.types import Message
+from aiogram.types import Message, ErrorEvent
 from flask import Flask
 
 from admin_app import db, flask_app
@@ -18,8 +18,10 @@ dp = Dispatcher()
 
 @logger_wraps()
 async def bot_start_pooling(flask_app: Flask):
+    login_middleware = LoggerMiddleware(logger)
     dp.message.middleware.register(FlaskAppMiddleware(flask_app=flask_app))
-    dp.message.middleware.register(LoggerMiddleware(logger))
+    dp.message.middleware.register(login_middleware)
+    dp.error.middleware.register(login_middleware)
 
     await dp.start_polling(bot)
 
@@ -40,6 +42,13 @@ async def on_startup():
 async def on_shutdown():
     logger.info("on_shutdown: bot stopped")
     await fast_stream_app.broker.close()
+
+
+@dp.error()
+async def error_handler(event: ErrorEvent, logger):
+    print("!!!!!!!!!!!!!!!!! ERROR !!!!!!!!!!")
+    logger.error(event.exception)
+
 
 
 @dp.message(CommandStart())

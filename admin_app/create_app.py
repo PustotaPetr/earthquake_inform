@@ -4,11 +4,11 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 
 
-def create_app(db: SQLAlchemy):
+def create_app(db: SQLAlchemy, db_filename: str = 'bot.db'):
     app = Flask(__name__)
 
     app.config["FLASK_ENV"] = "development"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///bot.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_filename}"
     app.config["SECRET_KEY"] = "anykey"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 

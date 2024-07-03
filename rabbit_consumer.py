@@ -21,7 +21,7 @@ broker = RabbitBroker(
     ),
     logger=logger,
 )
-earthquake_queue = RabbitQueue(name=queue_name, durable=True)
+earthquake_queue = RabbitQueue(name=cfg.rabbit_cfg.queue, durable=True)
 
 fast_stream_app = FastStream(broker=broker)
 

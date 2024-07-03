@@ -1,5 +1,7 @@
-pika
-python-dotenv
-flask
-Flask-Admin
-Flask-SQLAlchemy
+aiogram==3.7.0
+python-dotenv==1.0.1
+faststream[rabbit]==0.5.13
+Flask==3.0.3
+Flask-Admin==1.6.1
+Flask-SQLAlchemy==3.1.1
+loguru==0.7.2
