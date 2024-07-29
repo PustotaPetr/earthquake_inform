@@ -1,0 +1,71 @@
+.btn-success {
+  color: #fff;
+  /* background-color: #5cb85c;
+    border-color: #4cae4c; */
+}
+
+.my-div {
+  margin: 0;
+  padding: 0;
+  background: #060607
+}
+
+.my-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 180px;
+  height: 50px;
+  background: #060607;
+  text-decoration: none;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 50px;
+  color: rgb(159, 199, 224);
+  font-size: 20px;
+  font-family: verdana;
+  letter-spacing: 4px;
+   border-radius: 20px;
+}
+
+.my-button:before,
+.my-button:after,
+.my-span:before,
+.my-span:after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: rgb(0, 255, 157);
+  transition: 1s;
+  mix-blend-mode: hue;
+}
+
+.my-button:before {
+  top: -2px;
+  left: -2px
+}
+
+.my-button:after {
+  top: -2px;
+  right: -2px;
+}
+
+.my-span:before {
+  bottom: -2px;
+  left: -2px
+}
+
+.my-span:after {
+  bottom: -2px;
+  right: -2px
+}
+
+.my-button:hover:before,
+.my-button:hover:after,
+.my-button:hover span:before,
+.my-button:hover span:after {
+  width: calc(180px/2);
+  height: calc(50px/2)
+}
