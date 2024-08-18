@@ -8,9 +8,11 @@ from flask_sqlalchemy import SQLAlchemy
 from logger.logger import logger
 from config import cfg
 from services.bot_service import (
-    end_earthquake_message_to_all_user,
+    send_earthquake_message_to_all_user,
     check_fields_in_message,
+    save_earthquake_to_db
 )
+from model.p_model import EarthQuakeP
 
 queue_name = "earthquake"
 
@@ -54,5 +56,8 @@ async def get_rabbit_message(
 ):
     check_fields_in_message(mq_message_json=msg, log=logger)
 
+    eq = EarthQuakeP.model_validate(msg)
+
     with flask_app.app_context():
-        await end_earthquake_message_to_all_user(bot, db, msg, logger)
+        save_earthquake_to_db(db, eq)
+        await send_earthquake_message_to_all_user(bot, db, msg, logger)

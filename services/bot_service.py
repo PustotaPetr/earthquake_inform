@@ -7,8 +7,9 @@ from flask_sqlalchemy import SQLAlchemy
 from staticmap import StaticMap, CircleMarker
 
 from messages.message_ru import MESSAGE_RU
-from admin_app.db_model import User
+from admin_app.db_model import User, EarthQuake
 from logger.logger import logger_wraps
+from model.p_model import EarthQuakeP
 
 
 @logger_wraps(level=logging.INFO)
@@ -72,7 +73,7 @@ async def send_earthquake_message_to_user(
 
 
 @logger_wraps()
-async def end_earthquake_message_to_all_user(
+async def send_earthquake_message_to_all_user(
     bot: Bot, db: SQLAlchemy, msg: dict, logger: logging.Logger
 ):
     try:
@@ -86,3 +87,17 @@ async def end_earthquake_message_to_all_user(
             )
     finally:
         io_bytes.close()
+
+
+def save_earthquake_to_db(db:SQLAlchemy,eq_msg:EarthQuakeP):
+    new_earthquake = EarthQuake(
+        id=eq_msg.id,
+        description = eq_msg.description,
+        latitude=eq_msg.latitude,
+        longitude=eq_msg.longitude,
+        depth=eq_msg.depth,
+        magnitude=eq_msg.magnitude,
+        time=eq_msg.time
+    )
+    db.session.add(new_earthquake)
+    db.session.commit()

@@ -58,3 +58,14 @@ class RolesUsers(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Admin.id))
     role_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Role.id))
+
+
+class EarthQuake(db.Model):
+    __tablename__ = "earthquake"
+    id: so.Mapped[str] = so.mapped_column(sa.String(20), primary_key=True)
+    description: so.Mapped[str] = so.mapped_column(nullable=True)
+    time: so.Mapped[datetime] = so.mapped_column(nullable=True)
+    longitude: so.Mapped[float] = so.mapped_column(nullable=True)
+    latitude: so.Mapped[float] = so.mapped_column(nullable=True)
+    depth: so.Mapped[int] = so.mapped_column(nullable=True)
+    magnitude: so.Mapped[float] = so.mapped_column(nullable=True)

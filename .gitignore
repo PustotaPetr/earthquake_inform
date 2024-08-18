@@ -3,6 +3,8 @@ rabbitmq/
 docker.env
 *.log.*
 .vscode/
+definitions.json.old
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -69,6 +71,7 @@ db.sqlite3-journal
 
 # Flask stuff:
 instance/
+instance_backup/
 .webassets-cache
 
 # Scrapy stuff:
