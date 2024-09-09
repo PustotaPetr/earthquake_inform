@@ -60,4 +60,4 @@ async def get_rabbit_message(
 
     with flask_app.app_context():
         save_earthquake_to_db(db, eq)
-        await send_earthquake_message_to_all_user(bot, db, msg, logger)
+        await send_earthquake_message_to_all_user(bot, db, eq, logger)

@@ -25,18 +25,24 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
+    networks:
+      eq_inform_net:
+        ipv4_address: 172.20.0.4
   admin:
     container_name: python_web_admin
     image: python_earthquake_inform
     build: 
       context: .
     ports:
-      - 5050:5000
+      - 5000:5000
     env_file: "docker.env"
     command: "web_admin"
     volumes:
       - ./logs:/opt/earthquake/logs
       - ./instance:/opt/earthquake/instance
+    networks:
+      eq_inform_net:
+        ipv4_address: 172.20.0.2
   bot:
     container_name: python_bot_consumer
     image: python_earthquake_inform
@@ -50,3 +56,14 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    networks:
+      eq_inform_net:
+        ipv4_address: 172.20.0.3
+
+networks:
+  eq_inform_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

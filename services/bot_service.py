@@ -53,18 +53,18 @@ def check_fields_in_message(mq_message_json: dict, log: logging.Logger):
 
 @logger_wraps()
 async def send_earthquake_message_to_user(
-    bot: Bot, db: SQLAlchemy, user: User, mq_message_json: dict
+    bot: Bot, db: SQLAlchemy, user: User,  eq: EarthQuakeP
 ):
     try:
         await bot.send_message(
             chat_id=user.chat_id,
             text=MESSAGE_RU["earhtqueqe_inform"].format(
-                mq_message_json.get("description", "UNKNOWN"),
-                mq_message_json.get("latitude", "UNKNOWN"),
-                mq_message_json.get("longitude", "UNKNOWN"),
-                mq_message_json.get("depth", "UNKNOWN"),
-                mq_message_json.get("magnitude", "UNKNOWN"),
-                mq_message_json.get("time", "UNKNOWN"),
+                eq.description,
+                eq.latitude,
+                eq.longitude,
+                eq.depth,
+                eq.magnitude,
+                eq.time,
             ),
         )
 
@@ -74,16 +74,16 @@ async def send_earthquake_message_to_user(
 
 @logger_wraps()
 async def send_earthquake_message_to_all_user(
-    bot: Bot, db: SQLAlchemy, msg: dict, logger: logging.Logger
+    bot: Bot, db: SQLAlchemy, eq: EarthQuakeP, logger: logging.Logger
 ):
     try:
-        io_bytes = make_map_pic_bytes(msg.get("latitude"), msg.get("longitude"))
+        io_bytes = make_map_pic_bytes(eq.latitude, eq.longitude)
         buffered_image = BufferedInputFile(io_bytes.getvalue(), "map.png")
         for user in db.session.query(User):
-            await send_earthquake_message_to_user(bot, db, user, msg)
+            await send_earthquake_message_to_user(bot, db, user, eq)
             await bot.send_photo(chat_id=user.chat_id, photo=buffered_image)
             logger.info(
-                f'{user.user_id=} {user.user_name=} publicID={msg.get('publicID', 'UNKNOWN')} description={msg.get("description", 'UNKNOWN')}'
+                f'{user.user_id=} {user.user_name=} publicID={eq.id} description={eq.description}'
             )
     finally:
         io_bytes.close()
